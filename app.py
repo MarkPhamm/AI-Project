@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import os 
 import warnings
-import plotly.express as px
-import plotly.graph_objects as go
+# import plotly.express as px
+# import plotly.graph_objects as go
 import numpy as np
 from io import StringIO
 from datetime import datetime
