@@ -11,8 +11,17 @@ from dateutil.relativedelta import relativedelta
 from openai import OpenAI
 # import open_ai
 import columns_decode
+from sklearn.model_selection import train_test_split
 import data_cleaning
 import eda
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from sklearn.model_selection import KFold
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
+from tensorflow.keras.optimizers import Adam
+import lime
+import lime.lime_tabular
 
 
 
@@ -64,7 +73,69 @@ def tab1():
     st.pyplot(fig4)
 
 def tab2():
-    st.write("This is the content of Tab 2")
+    st.write("This is the ANN Model")
+    target_column = [col for col in df.columns if 'score' in col.lower()]
+    st.write(f"The target we are trying to predict is {target_column[0]}")
+    from sklearn.model_selection import train_test_split
+    train_set, test_set = train_test_split(df, test_size=0.2, random_state=42)
+
+    train = train_set.drop(columns=target_column, errors='ignore')
+    train_labels = train_set[target_column]
+
+    test = test_set.drop(columns=target_column, errors='ignore')
+    test_labels = test_set[target_column]
+
+        # Define a function to create the model
+    def create_model():
+        model = Sequential([
+            Dense(64, activation='relu', input_shape=(train.shape[1],)),  # Input layer with 64 neurons and ReLU activation
+            Dense(32, activation='relu'),  # Hidden layer with 32 neurons and ReLU activation
+            Dense(1)  # Output layer with 1 neuron (no activation function for regression)
+        ])
+        model.compile(optimizer='adam', loss='mse', metrics=['mse'])  # Using MSE loss for regression and MSE as a metric
+        return model
+
+    # Assuming train and train_labels are defined (e.g., train is a pandas DataFrame, train_labels is a pandas Series)
+    # Perform k-fold cross-validation
+    kfold = KFold(n_splits=2, shuffle=True, random_state=42)
+    mse_scores = []
+    for train_indices, val_indices in kfold.split(train):
+        X_train, X_val = train.iloc[train_indices], train.iloc[val_indices]
+        y_train, y_val = train_labels.iloc[train_indices], train_labels.iloc[val_indices]
+        model = create_model()
+        history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_data=(X_val, y_val), verbose=0)
+        # Evaluate the model on validation data
+        mse = model.evaluate(X_val, y_val, verbose=0)[0]
+        mse_scores.append(mse)
+
+        # Display MSE scores
+    st.write("MSE scores:", mse_scores)
+    st.write("Mean MSE:", np.mean(mse_scores))
+    st.write("Root Mean Squared Error (RMSE):", np.sqrt(np.mean(mse_scores)))
+
+    # Create a LIME explainer
+    explainer = lime.lime_tabular.LimeTabularExplainer(train.values, 
+                                                    mode='regression',
+                                                    training_labels=train_labels,
+                                                    feature_names=train.columns)
+
+    # Generate explanation for a specific data row
+    exp = explainer.explain_instance(test.values[5], 
+                                    model.predict, 
+                                    num_features=len(train.columns))
+
+    # Display explanation in Streamlit
+    st.write("Explanation for Test Data Point:")
+    st.write("Predicted Value:", exp.predicted_value)
+    st.write("True Value:", test_labels.iloc[5])  # Assuming 'test_labels' contains true labels
+    st.write("Explanation:")
+    # Extract top two features from explanation
+    top_features = exp.as_list(2)
+
+    # Display top two features
+    st.write("Top Two Features:")
+    for feature, value in top_features:
+        st.write(f"- {feature}: {value}")
 
 # Create tabs
 tabs = ["EDA", "ANN Model"]
