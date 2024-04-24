@@ -8,7 +8,7 @@ import numpy as np
 from io import StringIO
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from openai import OpenAI
+# from openai import OpenAI
 # import open_ai
 import columns_decode
 from sklearn.model_selection import train_test_split
