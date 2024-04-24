@@ -5,3 +5,4 @@ streamlit
 boto3
 openai
 plotly
+seaborn
