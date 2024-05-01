@@ -12,8 +12,8 @@ from dateutil.relativedelta import relativedelta
 # import open_ai
 # import columns_decode
 # from sklearn.model_selection import train_test_split
-import data_cleaning
-import eda
+import app.data_cleaning as data_cleaning
+import app.eda as eda
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from sklearn.model_selection import KFold
