@@ -5,7 +5,7 @@ Machine learning project for analyzing and predicting financial well-being using
 ## Project Structure
 
 ```
-AI-Project/
+NFWBS-Financial-Well-Being-Analysis/
 ├── config/                     # Configuration files
 ├── data/
 │   ├── raw/                   # Original, immutable data
@@ -35,7 +35,7 @@ AI-Project/
 1. Clone the repository
 ```bash
 git clone <repository-url>
-cd AI-Project
+cd NFWBS-Financial-Well-Being-Analysis
 ```
 
 2. Create a virtual environment (recommended)
